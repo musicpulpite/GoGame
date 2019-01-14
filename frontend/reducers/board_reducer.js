@@ -19,11 +19,30 @@ const boardReducer = (state = preloadedState, action) => {
 
   switch(action.type) {
     case PLACE_PIECE:
-      // right now we are not checking and preventing suicide moves
-      // (or ko violations)
-
-      // set new stone
+      // select board position
       const piece = newState[action.pos];
+
+      // this isnt right! I have to connect and then check for liberties!
+
+      // check for and prevent suicide moves
+      if (Object.keys(piece.groupLiberties).length === 0) {
+        let valid = false;
+        // move is still valid if it eliminates an adjacent opposing group
+        piece.adjacentPositions().forEach((pos) => {
+          const otherPiece = newState[pos];
+          const otherGroupLiberties = otherPiece.rootPiece().groupLiberties;
+
+          if (Object.keys(otherGroupLiberties).length === 1 &&
+              otherGroupLiberties[pos] === true) {
+                valid = true;
+              }
+        });
+
+        if (!valid) return state;
+      }
+
+      //
+      // assuming valid move, set new stone
       piece.stone = action.stone;
       piece.groupSize = 1;
 
@@ -48,6 +67,8 @@ const boardReducer = (state = preloadedState, action) => {
           delete otherPiece.rootPiece().groupLiberties[piece.pos];
         }
       });
+
+      // eliminate any opposing pieces
 
 
       return newState;
