@@ -1,4 +1,4 @@
-import {merge} from 'lodash';
+import {merge, cloneDeep} from 'lodash';
 
 import {PLACE_PIECE} from '../actions/board_actions.js';
 import positionData from '../position_data.js';
@@ -15,33 +15,13 @@ pos.forEach((i) => {
 
 const boardReducer = (state = preloadedState, action) => {
   Object.freeze(state);
-  let newState = merge({}, state);
+  let newState = cloneDeep(state);
 
   switch(action.type) {
     case PLACE_PIECE:
       // select board position
       const piece = newState[action.pos];
 
-      // this isnt right! I have to connect and then check for liberties!
-
-      // check for and prevent suicide moves
-      if (Object.keys(piece.groupLiberties).length === 0) {
-        let valid = false;
-        // move is still valid if it eliminates an adjacent opposing group
-        piece.adjacentPositions().forEach((pos) => {
-          const otherPiece = newState[pos];
-          const otherGroupLiberties = otherPiece.rootPiece().groupLiberties;
-
-          if (Object.keys(otherGroupLiberties).length === 1 &&
-              otherGroupLiberties[pos] === true) {
-                valid = true;
-              }
-        });
-
-        if (!valid) return state;
-      }
-
-      //
       // assuming valid move, set new stone
       piece.stone = action.stone;
       piece.groupSize = 1;
@@ -68,10 +48,24 @@ const boardReducer = (state = preloadedState, action) => {
         }
       });
 
-      // eliminate any opposing pieces
+      // eliminate any opposing pieces if all liberties taken
+      piece.adjacentPositions().forEach((pos) => {
+        const otherPiece = newState[pos];
 
+        if (otherPiece.stone &&
+            piece.stone !== otherPiece.stone) {
+              positionData.removeGroupfromRoot(newState, otherPiece.rootPiece());
+            }
+      });
+      //
 
-      return newState;
+      // cancel and return original state if suicide move
+      let newGroupLiberties = piece.rootPiece().groupLiberties;
+
+      if (Object.keys(newGroupLiberties).length === 0) return state;
+      else return newState;
+
+      break;
 
     default:
       return state;

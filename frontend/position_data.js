@@ -1,10 +1,11 @@
 import {merge} from 'lodash';
 class positionData {
-  constructor(stone, pos) {
+  constructor(stone, pos, initialize = true) {
     this.stone = stone;
     this.pos = pos;
     this.groupSize = 0;
-    this.groupLiberties = this.initializeGroupLiberties();
+    this.groupLiberties = initialize ? this.initializeGroupLiberties() : {};
+    this.groupPositions = {[pos]: true};
     this.parentPiece = this;
   }
 
@@ -18,25 +19,25 @@ class positionData {
   }
 
   connectPiece(otherPiece) {
+    let parentRoot;
+    let childRoot;
     // for efficiency, we append the smaller group to the larger group
     // this is an attempt to keep the group tree representations 'flatter'
     if (otherPiece.rootPiece().groupSize >= this.rootPiece().groupSize) {
-      // update groupSize
-      otherPiece.rootPiece().groupSize += this.rootPiece().groupSize;
-      // merge liberty hashes
-      otherPiece.rootPiece().groupLiberties =
-        merge(this.groupLiberties, otherPiece.rootPiece().groupLiberties);
-      // finally append group trees, connecting them together
-      this.rootPiece().parentPiece = otherPiece.rootPiece();
+      parentRoot = otherPiece.rootPiece();
+      childRoot = this.rootPiece();
     } else {
-      // update groupSize
-      this.rootPiece().groupSize += otherPiece.rootPiece().groupSize;
-      // merge liberty hashes
-      this.rootPiece().groupLiberties = 
-        merge(this.groupLiberties, otherPiece.rootPiece().groupLiberties);
-      // finally append group trees, connecting them together
-      otherPiece.rootPiece().parentPiece = this.rootPiece();
+      parentRoot = this.rootPiece();
+      childRoot = otherPiece.rootPiece();
     }
+
+    // update group size
+    parentRoot.groupSize += childRoot.groupSize;
+    // merge liberty and position hashes
+    parentRoot.groupLiberties = merge(parentRoot.groupLiberties, childRoot.groupLiberties);
+    parentRoot.groupPositions = merge(parentRoot.groupPositions, childRoot.groupPositions);
+    // finally append group trees, connecting them together
+    childRoot.parentPiece = parentRoot;
   }
 
   adjacentPositions() {
@@ -65,6 +66,21 @@ class positionData {
     return liberties;
   }
 
+  static removeGroupfromRoot(board, root) {
+    if (Object.keys(root.groupLiberties).length > 0) return;
+    
+    let groupPos = Object.keys(root.groupPositions);
+
+    groupPos.forEach((pos) => {
+      let newPiece = new positionData(null, pos, false);
+      board[pos] = newPiece;
+
+      newPiece.adjacentPositions().forEach((adjPos) => {
+        if (groupPos.includes(adjPos)) newPiece.groupLiberties[adjPos] = true;
+      });
+    });
+  }
+  //
 }
 
 export default positionData;
