@@ -1,0 +1,25 @@
+#go-board, #root {
+  position: fixed;
+  top: calc(50% - 300px);
+  left: calc(50% - 300px);
+}
+
+.col {
+  width: 66.66px;
+  height: 66.66px;
+
+  border-radius: 50%;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.BLACK {
+  background-color: black;
+}
+
+.WHITE {
+  background-color: white;
+}
