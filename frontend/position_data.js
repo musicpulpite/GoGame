@@ -10,6 +10,7 @@ class positionData {
   }
 
   rootPiece() {
+    // Traverse up abstract tree structure until reach root positionData object
     let piece = this;
     while(piece.parentPiece !== piece) {
       piece = piece.parentPiece;
@@ -21,6 +22,8 @@ class positionData {
   connectPiece(otherPiece) {
     let parentRoot;
     let childRoot;
+    // return if pieces are already connected
+    if (otherPiece.rootPiece().pos === this.rootPiece().pos) return;
     // for efficiency, we append the smaller group to the larger group
     // this is an attempt to keep the group tree representations 'flatter'
     if (otherPiece.rootPiece().groupSize >= this.rootPiece().groupSize) {
@@ -41,6 +44,7 @@ class positionData {
   }
 
   adjacentPositions() {
+    // return array of all valid adjacent positions
     const adjacent = [];
     const i = parseInt(this.pos[0]);
     const j = parseInt(this.pos[1]);
@@ -54,6 +58,7 @@ class positionData {
   }
 
   initializeGroupLiberties() {
+    // return hashmap of all valid adjacent positions
     const liberties = {};
     const i = parseInt(this.pos[0]);
     const j = parseInt(this.pos[1]);
@@ -67,16 +72,22 @@ class positionData {
   }
 
   static removeGroupfromRoot(board, root) {
+    // Check that group is indeed completely surrounded
     if (Object.keys(root.groupLiberties).length > 0) return;
-    
+    // Create array of all group positions to iterate over
     let groupPos = Object.keys(root.groupPositions);
 
     groupPos.forEach((pos) => {
+      // create new data object (empty position) and place it on board
       let newPiece = new positionData(null, pos, false);
       board[pos] = newPiece;
+    });
 
-      newPiece.adjacentPositions().forEach((adjPos) => {
-        if (groupPos.includes(adjPos)) newPiece.groupLiberties[adjPos] = true;
+    groupPos.forEach((pos) => {
+      // Restore liberty to all adjacent positions (both empty, ally and opponent)
+      board[pos].adjacentPositions().forEach((adjacentPos) => {
+        let otherPiece = board[adjacentPos];
+        otherPiece.rootPiece().groupLiberties[pos] = true;
       });
     });
   }
