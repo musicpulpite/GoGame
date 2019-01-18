@@ -23,6 +23,7 @@ class positionData {
     let parentRoot;
     let childRoot;
     // return if pieces are already connected
+    // (we already check this in function call in reducer, just checking)
     if (otherPiece.rootPiece().pos === this.rootPiece().pos) return;
     // for efficiency, we append the smaller group to the larger group
     // this is an attempt to keep the group tree representations 'flatter'
