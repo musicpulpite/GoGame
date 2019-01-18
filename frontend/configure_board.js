@@ -9,13 +9,6 @@ const configureBoard = () => {
   // outer border
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'black';
-  // ctx.beginPath();
-  // ctx.moveTo(33.33, 33.33);
-  // ctx.lineTo(33.33, 566.66);
-  // ctx.lineTo(566.66, 566.66);
-  // ctx.lineTo(566.66, 33.33);
-  // ctx.lineTo(33.33, 33.33);
-  // ctx.stroke();
 
   // vertical lines
   for (let i = 33.33; i < 600; i += 66.66) {

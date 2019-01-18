@@ -10,10 +10,8 @@ pos.forEach((i) => {
   pos.forEach((j) => {
     const pos = `${i}${j}`;
     preloadedState[pos] = new positionData(null, pos);
-  });
-});
-
-preloadedState.nextPiece = 'BLACK';
+  })
+})
 
 const boardReducer = (state = preloadedState, action) => {
   Object.freeze(state);
@@ -24,10 +22,7 @@ const boardReducer = (state = preloadedState, action) => {
       // select board position
       const piece = newState[action.pos];
 
-      // prevent placing piece on occupied position
-      if (piece.stone) return state;
-
-      // assuming valid move (will check at end), set new stone
+      // assuming valid move, set new stone
       piece.stone = action.stone;
       piece.groupSize = 1;
 
@@ -68,10 +63,7 @@ const boardReducer = (state = preloadedState, action) => {
       let newGroupLiberties = piece.rootPiece().groupLiberties;
 
       if (Object.keys(newGroupLiberties).length === 0) return state;
-      else {
-        newState.nextPiece = newState.nextPiece === 'BLACK' ? 'WHITE' : 'BLACK';
-        return newState;
-      }
+      else return newState;
 
       break;
 
