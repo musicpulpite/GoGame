@@ -498,6 +498,11 @@ function () {
       childRoot.parentPiece = parentRoot;
     }
   }, {
+    key: "removeLibertyfromGroupRoot",
+    value: function removeLibertyfromGroupRoot(pos) {
+      delete this.rootPiece().groupLiberties[pos];
+    }
+  }, {
     key: "adjacentPositions",
     value: function adjacentPositions() {
       // return array of all valid adjacent positions
@@ -522,7 +527,8 @@ function () {
       if (j > 0) liberties["".concat(i).concat(j - 1)] = true;
       if (j < 8) liberties["".concat(i).concat(j + 1)] = true;
       return liberties;
-    }
+    } //
+
   }], [{
     key: "removeGroupfromRoot",
     value: function removeGroupfromRoot(board, root) {
@@ -542,8 +548,7 @@ function () {
           otherPiece.rootPiece().groupLiberties[pos] = true;
         });
       });
-    } //
-
+    }
   }]);
 
   return positionData;
@@ -603,13 +608,14 @@ var boardReducer = function boardReducer() {
         }
       }); // remove liberty from connected pieces of same color
 
-      delete piece.rootPiece().groupLiberties[piece.pos]; // remove liberty from adjacent empty spaces and opposing color groups
+      piece.removeLibertyfromGroupRoot(piece.pos); // delete piece.rootPiece().groupLiberties[piece.pos];
+      // remove liberty from adjacent empty spaces and opposing color groups
 
       piece.adjacentPositions().forEach(function (pos) {
         var otherPiece = newState[pos];
 
         if (piece.stone !== otherPiece.stone) {
-          delete otherPiece.rootPiece().groupLiberties[piece.pos];
+          otherPiece.removeLibertyfromGroupRoot(piece.pos); // delete otherPiece.rootPiece().groupLiberties[piece.pos];
         }
       }); // eliminate any opposing pieces if all liberties taken
 

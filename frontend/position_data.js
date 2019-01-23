@@ -44,6 +44,31 @@ class positionData {
     childRoot.parentPiece = parentRoot;
   }
 
+  static removeGroupfromRoot(board, root) {
+    // Check that group is indeed completely surrounded
+    if (Object.keys(root.groupLiberties).length > 0) return;
+    // Create array of all group positions to iterate over
+    let groupPos = Object.keys(root.groupPositions);
+
+    groupPos.forEach((pos) => {
+      // create new data object (empty position) and place it on board
+      let newPiece = new positionData(null, pos, false);
+      board[pos] = newPiece;
+    });
+
+    groupPos.forEach((pos) => {
+      // Restore liberty to all adjacent positions (both empty, ally and opponent)
+      board[pos].adjacentPositions().forEach((adjacentPos) => {
+        let otherPiece = board[adjacentPos];
+        otherPiece.rootPiece().groupLiberties[pos] = true;
+      });
+    });
+  }
+
+  removeLibertyfromGroupRoot(pos) {
+    delete this.rootPiece().groupLiberties[pos];
+  }
+
   adjacentPositions() {
     // return array of all valid adjacent positions
     const adjacent = [];
@@ -72,26 +97,6 @@ class positionData {
     return liberties;
   }
 
-  static removeGroupfromRoot(board, root) {
-    // Check that group is indeed completely surrounded
-    if (Object.keys(root.groupLiberties).length > 0) return;
-    // Create array of all group positions to iterate over
-    let groupPos = Object.keys(root.groupPositions);
-
-    groupPos.forEach((pos) => {
-      // create new data object (empty position) and place it on board
-      let newPiece = new positionData(null, pos, false);
-      board[pos] = newPiece;
-    });
-
-    groupPos.forEach((pos) => {
-      // Restore liberty to all adjacent positions (both empty, ally and opponent)
-      board[pos].adjacentPositions().forEach((adjacentPos) => {
-        let otherPiece = board[adjacentPos];
-        otherPiece.rootPiece().groupLiberties[pos] = true;
-      });
-    });
-  }
   //
 }
 

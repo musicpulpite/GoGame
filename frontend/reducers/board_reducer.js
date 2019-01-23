@@ -42,14 +42,16 @@ const boardReducer = (state = preloadedState, action) => {
       });
 
       // remove liberty from connected pieces of same color
-      delete piece.rootPiece().groupLiberties[piece.pos];
+      piece.removeLibertyfromGroupRoot(piece.pos);
+      // delete piece.rootPiece().groupLiberties[piece.pos];
 
       // remove liberty from adjacent empty spaces and opposing color groups
       piece.adjacentPositions().forEach((pos) => {
         const otherPiece = newState[pos];
 
         if (piece.stone !== otherPiece.stone) {
-          delete otherPiece.rootPiece().groupLiberties[piece.pos];
+          otherPiece.removeLibertyfromGroupRoot(piece.pos);
+          // delete otherPiece.rootPiece().groupLiberties[piece.pos];
         }
       });
 
