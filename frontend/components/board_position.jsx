@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 
 import { placePiece } from '../actions/board_actions.js';
 
-const BoardPosition = ({row, col, board, placePiece}) => {
+const BoardPosition = ({row, col, board, nextPiece, placePiece}) => {
   const triggerPlacement = () => {
-    switch(board.nextPiece === 'BLACK') {
+    switch(nextPiece === 'BLACK') {
       case true:
         placePiece('BLACK', `${row}${col}`);
         break;
@@ -24,7 +24,8 @@ const BoardPosition = ({row, col, board, placePiece}) => {
 };
 
 const mapStateToProps = (state) => ({
-  board: state.board
+  board: state.board,
+  nextPiece: state.nextPiece
 });
 
 const mapDispatchToProps = (dispatch) => ({

@@ -259,10 +259,11 @@ var BoardPosition = function BoardPosition(_ref) {
   var row = _ref.row,
       col = _ref.col,
       board = _ref.board,
+      nextPiece = _ref.nextPiece,
       placePiece = _ref.placePiece;
 
   var triggerPlacement = function triggerPlacement() {
-    switch (board.nextPiece === 'BLACK') {
+    switch (nextPiece === 'BLACK') {
       case true:
         placePiece('BLACK', "".concat(row).concat(col));
         break;
@@ -282,7 +283,8 @@ var BoardPosition = function BoardPosition(_ref) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    board: state.board
+    board: state.board,
+    nextPiece: state.nextPiece
   };
 };
 
@@ -558,92 +560,6 @@ function () {
 
 /***/ }),
 
-/***/ "./frontend/reducers/board_reducer.js":
-/*!********************************************!*\
-  !*** ./frontend/reducers/board_reducer.js ***!
-  \********************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/board_actions.js */ "./frontend/actions/board_actions.js");
-/* harmony import */ var _position_data_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../position_data.js */ "./frontend/position_data.js");
-
-
-
-var preloadedState = {};
-var pos = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-pos.forEach(function (i) {
-  pos.forEach(function (j) {
-    var pos = "".concat(i).concat(j);
-    preloadedState[pos] = new _position_data_js__WEBPACK_IMPORTED_MODULE_2__["default"](null, pos);
-  });
-});
-preloadedState.nextPiece = 'BLACK';
-
-var boardReducer = function boardReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : preloadedState;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
-  Object.freeze(state);
-  var newState = Object(lodash__WEBPACK_IMPORTED_MODULE_0__["cloneDeep"])(state);
-
-  switch (action.type) {
-    case _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_1__["PLACE_PIECE"]:
-      // select board position
-      var piece = newState[action.pos]; // prevent placing piece on occupied position
-
-      if (piece.stone) return state; // assuming valid move (will check at end), set new stone
-
-      piece.stone = action.stone;
-      piece.groupSize = 1; // connect with adjacent stones of same color
-
-      piece.adjacentPositions().forEach(function (pos) {
-        var otherPiece = newState[pos];
-
-        if (piece.stone === otherPiece.stone && piece.rootPiece() !== otherPiece.rootPiece()) {
-          piece.connectPiece(otherPiece);
-        }
-      }); // remove liberty from connected pieces of same color
-
-      piece.removeLibertyfromGroupRoot(piece.pos); // delete piece.rootPiece().groupLiberties[piece.pos];
-      // remove liberty from adjacent empty spaces and opposing color groups
-
-      piece.adjacentPositions().forEach(function (pos) {
-        var otherPiece = newState[pos];
-
-        if (piece.stone !== otherPiece.stone) {
-          otherPiece.removeLibertyfromGroupRoot(piece.pos); // delete otherPiece.rootPiece().groupLiberties[piece.pos];
-        }
-      }); // eliminate any opposing pieces if all liberties taken
-
-      piece.adjacentPositions().forEach(function (pos) {
-        var otherPiece = newState[pos];
-
-        if (otherPiece.stone && piece.stone !== otherPiece.stone) {
-          _position_data_js__WEBPACK_IMPORTED_MODULE_2__["default"].removeGroupfromRoot(newState, otherPiece.rootPiece());
-        }
-      }); //
-      // cancel and return original state if suicide move
-
-      var newGroupLiberties = piece.rootPiece().groupLiberties;
-      if (Object.keys(newGroupLiberties).length === 0) return state;else {
-        newState.nextPiece = newState.nextPiece === 'BLACK' ? 'WHITE' : 'BLACK';
-        return newState;
-      }
-      break;
-
-    default:
-      return state;
-  }
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (boardReducer);
-
-/***/ }),
-
 /***/ "./frontend/reducers/game_reducer.js":
 /*!*******************************************!*\
   !*** ./frontend/reducers/game_reducer.js ***!
@@ -655,23 +571,65 @@ var boardReducer = function boardReducer() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions/board_actions.js */ "./frontend/actions/board_actions.js");
+/* harmony import */ var _util_functions_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util_functions.js */ "./frontend/reducers/util_functions.js");
+/* harmony import */ var _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../actions/board_actions.js */ "./frontend/actions/board_actions.js");
+/* harmony import */ var _position_data_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../position_data.js */ "./frontend/position_data.js");
 
 
-var preloadedData = {
-  nextPiece: 'BLACK',
-  ko: null
-};
 
-var gameReducer = function gameReducer() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : preloadedData;
-  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+
+var gameReducer = function gameReducer(state, action) {
   Object.freeze(state);
-  var newState = Object(lodash__WEBPACK_IMPORTED_MODULE_0__["merge"])({}, state);
+  var newState = Object(lodash__WEBPACK_IMPORTED_MODULE_0__["cloneDeep"])(state);
 
   switch (action.type) {
-    case _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_1__["PLACE_PIECE"]:
-      return newState;
+    case _actions_board_actions_js__WEBPACK_IMPORTED_MODULE_2__["PLACE_PIECE"]:
+      // select board position
+      var piece = newState.board[action.pos]; // prevent placing piece on occupied position
+
+      if (piece.stone) return state; // assuming valid move (will check at end), set new stone
+
+      piece.stone = action.stone;
+      piece.groupSize = 1; // connect with adjacent stones of same color
+
+      piece.adjacentPositions().forEach(function (pos) {
+        var otherPiece = newState.board[pos];
+
+        if (piece.stone === otherPiece.stone && piece.rootPiece() !== otherPiece.rootPiece()) {
+          piece.connectPiece(otherPiece);
+        }
+      }); // remove liberty from connected pieces of same color
+
+      piece.removeLibertyfromGroupRoot(piece.pos); // delete piece.rootPiece().groupLiberties[piece.pos];
+      // remove liberty from adjacent empty spaces and opposing color groups
+
+      piece.adjacentPositions().forEach(function (pos) {
+        var otherPiece = newState.board[pos];
+
+        if (piece.stone !== otherPiece.stone) {
+          otherPiece.removeLibertyfromGroupRoot(piece.pos); // delete otherPiece.rootPiece().groupLiberties[piece.pos];
+        }
+      }); // eliminate any opposing pieces if all liberties taken
+
+      piece.adjacentPositions().forEach(function (pos) {
+        var otherPiece = newState.board[pos];
+
+        if (otherPiece.stone && piece.stone !== otherPiece.stone) {
+          _position_data_js__WEBPACK_IMPORTED_MODULE_3__["default"].removeGroupfromRoot(newState.board, otherPiece.rootPiece());
+        }
+      }); //
+      // cancel and return original state if suicide move
+
+      var newGroupLiberties = piece.rootPiece().groupLiberties;
+      if (Object.keys(newGroupLiberties).length === 0) return state; // cancel and return original state if move violates ko rule
+
+      if (Object(_util_functions_js__WEBPACK_IMPORTED_MODULE_1__["violatesKo"])(state.prevBoard, newState.board)) return state;else {
+        newState.prevBoard = state.board;
+        newState.nextPiece = newState.nextPiece === 'BLACK' ? 'WHITE' : 'BLACK';
+        return newState;
+        break;
+      }
 
     default:
       return state;
@@ -682,25 +640,26 @@ var gameReducer = function gameReducer() {
 
 /***/ }),
 
-/***/ "./frontend/reducers/root_reducer.js":
-/*!*******************************************!*\
-  !*** ./frontend/reducers/root_reducer.js ***!
-  \*******************************************/
-/*! exports provided: default */
+/***/ "./frontend/reducers/util_functions.js":
+/*!*********************************************!*\
+  !*** ./frontend/reducers/util_functions.js ***!
+  \*********************************************/
+/*! exports provided: violatesKo */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
-/* harmony import */ var _board_reducer_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./board_reducer.js */ "./frontend/reducers/board_reducer.js");
-/* harmony import */ var _game_reducer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./game_reducer.js */ "./frontend/reducers/game_reducer.js");
-
-
-
-var RootReducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
-  board: _board_reducer_js__WEBPACK_IMPORTED_MODULE_1__["default"]
-});
-/* harmony default export */ __webpack_exports__["default"] = (RootReducer);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "violatesKo", function() { return violatesKo; });
+var violatesKo = function violatesKo(prevBoard, newBoard) {
+  if (prevBoard === null) return false;
+  var violated = true;
+  Object.keys(prevBoard).forEach(function (pos) {
+    if (prevBoard[pos].stone !== newBoard[pos].stone) {
+      violated = false;
+    }
+  });
+  return violated;
+};
 
 /***/ }),
 
@@ -716,33 +675,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
 /* harmony import */ var redux_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux-logger */ "./node_modules/redux-logger/dist/redux-logger.js");
 /* harmony import */ var redux_logger__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(redux_logger__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _reducers_root_reducer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/root_reducer */ "./frontend/reducers/root_reducer.js");
+/* harmony import */ var _reducers_game_reducer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reducers/game_reducer.js */ "./frontend/reducers/game_reducer.js");
+/* harmony import */ var _position_data_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../position_data.js */ "./frontend/position_data.js");
 
 
- // const preloadedState = {board: {}, ko: null};
-// const pos = [0,1,2,3,4,5,6,7,8];
-//
-// pos.forEach((i) => {
-//   pos.forEach((j) => {
-//     const positionData = {
-//       piece: null,
-//       parentPiece: this,
-//       // groupLiberties: {},
-//       groupSize: 0
-//     };
-//
-//     // if (i > 0) positionData.groupLiberties[`${i - 1}${j}`] = true;
-//     // if (i < 8) positionData.groupLiberties[`${i + 1}${j}`] = true;
-//     // if (j > 0) positionData.groupLiberties[`${i}${j - 1}`] = true;
-//     // if (j < 8) positionData.groupLiberties[`${i}${j + 1}`] = true;
-//
-//     preloadedState.board[`${i}${j}`] = positionData;
-//   })
-// })
+
+
+var defaultInitialState = {};
+var indices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+defaultInitialState.board = {};
+indices.forEach(function (i) {
+  indices.forEach(function (j) {
+    var pos = "".concat(i).concat(j);
+    defaultInitialState.board[pos] = new _position_data_js__WEBPACK_IMPORTED_MODULE_3__["default"](null, pos);
+  });
+});
+defaultInitialState.nextPiece = 'BLACK';
+defaultInitialState.prevBoard = null;
 
 var configureStore = function configureStore() {
-  var preloadedState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  return Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(_reducers_root_reducer__WEBPACK_IMPORTED_MODULE_2__["default"], preloadedState, Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_logger__WEBPACK_IMPORTED_MODULE_1___default.a));
+  var preloadedState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultInitialState;
+  return Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(_reducers_game_reducer_js__WEBPACK_IMPORTED_MODULE_2__["default"], preloadedState, Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_logger__WEBPACK_IMPORTED_MODULE_1___default.a));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (configureStore);
