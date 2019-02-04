@@ -44,13 +44,16 @@ class positionData {
     childRoot.parentPiece = parentRoot;
   }
 
-  static removeGroupfromRoot(board, root) {
+  static removeGroupfromRoot(board, gameStats, root) {
     // Check that group is indeed completely surrounded
     if (Object.keys(root.groupLiberties).length > 0) return;
     // Create array of all group positions to iterate over
     let groupPos = Object.keys(root.groupPositions);
 
     groupPos.forEach((pos) => {
+      // keep track of captured pieces
+      let capturedColor = board[pos].stone;
+      gameStats[capturedColor] += 1;
       // create new data object (empty position) and place it on board
       let newPiece = new positionData(null, pos, false);
       board[pos] = newPiece;

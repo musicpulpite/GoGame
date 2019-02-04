@@ -17,6 +17,10 @@ indices.forEach((i) => {
 });
 
 defaultInitialState.nextPiece = 'BLACK';
+defaultInitialState.gameStats = {
+  WHITE: 0,
+  BLACK: 0
+};
 defaultInitialState.prevBoard = null;
 
 const configureStore = (preloadedState = defaultInitialState) => (

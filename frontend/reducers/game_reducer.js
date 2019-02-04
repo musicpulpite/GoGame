@@ -50,7 +50,11 @@ const gameReducer = (state, action) => {
 
         if (otherPiece.stone &&
             piece.stone !== otherPiece.stone) {
-              positionData.removeGroupfromRoot(newState.board, otherPiece.rootPiece());
+              positionData.removeGroupfromRoot(
+                newState.board,
+                newState.gameStats,
+                otherPiece.rootPiece()
+              );
             }
       });
       //

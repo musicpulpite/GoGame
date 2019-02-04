@@ -533,13 +533,16 @@ function () {
 
   }], [{
     key: "removeGroupfromRoot",
-    value: function removeGroupfromRoot(board, root) {
+    value: function removeGroupfromRoot(board, gameStats, root) {
       // Check that group is indeed completely surrounded
       if (Object.keys(root.groupLiberties).length > 0) return; // Create array of all group positions to iterate over
 
       var groupPos = Object.keys(root.groupPositions);
       groupPos.forEach(function (pos) {
-        // create new data object (empty position) and place it on board
+        // keep track of captured pieces
+        var capturedColor = board[pos].stone;
+        gameStats[capturedColor] += 1; // create new data object (empty position) and place it on board
+
         var newPiece = new positionData(null, pos, false);
         board[pos] = newPiece;
       });
@@ -616,7 +619,7 @@ var gameReducer = function gameReducer(state, action) {
         var otherPiece = newState.board[pos];
 
         if (otherPiece.stone && piece.stone !== otherPiece.stone) {
-          _position_data_js__WEBPACK_IMPORTED_MODULE_3__["default"].removeGroupfromRoot(newState.board, otherPiece.rootPiece());
+          _position_data_js__WEBPACK_IMPORTED_MODULE_3__["default"].removeGroupfromRoot(newState.board, newState.gameStats, otherPiece.rootPiece());
         }
       }); //
       // cancel and return original state if suicide move
@@ -691,6 +694,10 @@ indices.forEach(function (i) {
   });
 });
 defaultInitialState.nextPiece = 'BLACK';
+defaultInitialState.gameStats = {
+  WHITE: 0,
+  BLACK: 0
+};
 defaultInitialState.prevBoard = null;
 
 var configureStore = function configureStore() {
