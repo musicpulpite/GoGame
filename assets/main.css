@@ -1,3 +1,7 @@
+body {
+  background-image: url('./images/background.jpg');
+}
+
 #go-board, #root {
   position: fixed;
   top: calc(50% - 300px);
@@ -22,4 +26,31 @@
 
 .WHITE {
   background-color: white;
+}
+
+/* Game Stats/ Info */
+
+#info {
+  position: fixed;
+  top: calc(50% - 300px + 33px + (200px + 20px));
+  left: calc(50% + 300px + 50px);
+
+  width: 165px;
+  height: 118px;
+
+  padding: 10px;
+  border: 1px solid black;
+  background-color: #ffbf00;
+
+  font-size: 14px;
+}
+
+aside {
+  position: fixed;
+  top: calc(50% - 300px + 33px);
+  left: calc(50% + 300px + 50px);
+
+  padding: 10px;
+  border: 1px solid black;
+  background-color: #ffbf00;
 }

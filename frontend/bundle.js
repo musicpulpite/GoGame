@@ -300,6 +300,40 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 /***/ }),
 
+/***/ "./frontend/components/game_stats.jsx":
+/*!********************************************!*\
+  !*** ./frontend/components/game_stats.jsx ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+
+
+var GameStats = function GameStats(_ref) {
+  var turn = _ref.turn,
+      blackCaptured = _ref.blackCaptured,
+      whiteCaptured = _ref.whiteCaptured;
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("aside", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, turn, "s turn"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Captured White Pieces: ", whiteCaptured), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Captured Black Pieces: ", blackCaptured));
+};
+
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    turn: state.nextPiece,
+    blackCaptured: state.gameStats.BLACK,
+    whiteCaptured: state.gameStats.WHITE
+  };
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps, null)(GameStats));
+
+/***/ }),
+
 /***/ "./frontend/components/root.jsx":
 /*!**************************************!*\
   !*** ./frontend/components/root.jsx ***!
@@ -313,6 +347,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 /* harmony import */ var _row_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./row.jsx */ "./frontend/components/row.jsx");
+/* harmony import */ var _game_stats_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./game_stats.jsx */ "./frontend/components/game_stats.jsx");
+
 
 
 
@@ -327,7 +363,7 @@ var Root = function Root(_ref) {
   });
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_1__["Provider"], {
     store: store
-  }, rows);
+  }, rows, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_game_stats_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], null));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (Root);
