@@ -48,8 +48,8 @@ Each `positionData` object has an instance variable `this.parentPiece` that is i
 its direct parent in the abstract tree structure. When any two pieces are connected, the root node of the tree that contains
 one piece is set as the parent of the root node of the tree that contains the other piece.  
 
-So, for example, if we were to connect nodes `1` and `4` in the trees below:  
-<img src="uf3.jpg" width="350">  
+So, for example, if we were to connect nodes `2` and `4` in the trees below:  
+<img src="uf3.jpg" width="350" border="1px solid black">  
 
 the new tree structure would be  
 
