@@ -49,6 +49,8 @@ its direct parent in the abstract tree structure. When any two pieces are connec
 one piece is set as the parent of the root node of the tree that contains the other piece.  
 
 So, for example, if we were to connect nodes `1` and `4` in the trees below:  
-<img src="uf3.jpg" width="350">
-the new tree structure would be
+<img src="uf3.jpg" width="350">  
+
+the new tree structure would be  
+
 <img src="uf4.jpg" width="350">
