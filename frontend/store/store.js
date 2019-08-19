@@ -7,6 +7,8 @@ import positionData from '../position_data.js';
 const defaultInitialState = {};
 const indices = [0,1,2,3,4,5,6,7,8];
 
+// I really should convert this into an array for easier indexing
+// and more flexibility
 defaultInitialState.board = {};
 
 indices.forEach((i) => {
